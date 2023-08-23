@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "322891877752",
+    "project_id": "parktasticph-395211",
+    "storage_bucket": "parktasticph-395211.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:322891877752:android:26a089e04fdae8e2270c8d",
+        "android_client_info": {
+          "package_name": "com.parktasticph"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "322891877752-8cp86r4epn3ackg13hum5timjqmhi48m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.parktasticph",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "322891877752-pusqk96lbtrg4d4r6nvbg9jrkbqa6drd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA09-MrM-ztANGHMRY6BVDtrryOfzbrpvg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "322891877752-6vceo1h0cedf36uiqa94529mk6krn110.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "322891877752-chhud8qia6mjlv54g44cmr5v329jcf35.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.parktasticph"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

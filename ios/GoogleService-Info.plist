@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>322891877752-chhud8qia6mjlv54g44cmr5v329jcf35.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.322891877752-chhud8qia6mjlv54g44cmr5v329jcf35</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDAeMHr4ynmnyoOT1ETSy5tbsktLIbPDV8</string>
+	<key>GCM_SENDER_ID</key>
+	<string>322891877752</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>org.reactjs.native.example.parktasticph</string>
+	<key>PROJECT_ID</key>
+	<string>parktasticph-395211</string>
+	<key>STORAGE_BUCKET</key>
+	<string>parktasticph-395211.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:322891877752:ios:a3480330acb4071f270c8d</string>
+</dict>
+</plist>
