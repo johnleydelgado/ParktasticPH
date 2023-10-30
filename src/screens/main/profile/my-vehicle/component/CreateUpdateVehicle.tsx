@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable handle-callback-err */
+
 import {colors} from '@/common/constant/colors';
 import {modalName} from '@/common/constant/modal';
 import CustomTextInput from '@/common/textinput/CustomTextInput';
@@ -26,6 +26,7 @@ import auth from '@react-native-firebase/auth';
 import uuid from 'react-native-uuid';
 import {COLLECTIONS} from '@/common/constant/firestore';
 import {Keyboard, Platform, TouchableWithoutFeedback} from 'react-native';
+import {firestoreAdd} from '@/common/api/main';
 
 interface VehicleProps {
   brand: string;
@@ -48,25 +49,19 @@ const CreateUpdateVehicle = () => {
   const formik = useFormik({
     initialValues: INITIAL_DATA,
     enableReinitialize: true,
-    onSubmit: values => {
+    onSubmit: async values => {
       try {
         const userId = firebase.auth().currentUser?.uid;
-        firestore()
-          .collection(COLLECTIONS.VEHICLES)
-          .doc(userId)
-          .collection(userId || '')
-          .add(values)
-          .then(() => {
-            closeCreateUpdateModal();
-          })
-          .catch((err: any) => {
-            closeCreateUpdateModal();
-          });
+        await firestoreAdd({
+          collection: COLLECTIONS.VEHICLES,
+          userId: userId,
+          values: values,
+        });
       } catch (e: any) {
         closeCreateUpdateModal();
+      } finally {
+        closeCreateUpdateModal();
       }
-
-      //   alert(JSON.stringify(values, null, 2));
     },
   });
 

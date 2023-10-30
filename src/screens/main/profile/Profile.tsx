@@ -64,9 +64,9 @@ const Profile = ({navigation}: Props) => {
 
   return (
     <FadeInView>
-      <VStack flex={1} bgColor={colors.bgColor}>
+      <VStack bgColor={colors.bgColor}>
         {/* HEADER */}
-        <Box safeAreaTop={12} px={4} h="20%" w="full" bgColor={colors.bgColor}>
+        <Box safeAreaTop={12} px={4} w="full" bgColor={colors.bgColor} pb={4}>
           <Text style={styles.fontStyleDefault} pb={4}>
             Account
           </Text>
@@ -84,55 +84,49 @@ const Profile = ({navigation}: Props) => {
             <Avatar source={images.car1} size={62} />
           </HStack>
         </Box>
-        {/* GREEN HEADER */}
-        <HStack
-          px={4}
-          py={2}
-          h="14%"
-          w="full"
-          borderTopRadius={32}
-          bgColor={colors.primary}
-          justifyContent="space-between">
-          <VStack pt={6}>
-            <HStack space={4}>
-              <Icon name="wallet" color="white" size={22} />
-              <Text
-                style={{...styles.fontStyleDefault, fontSize: 14}}
-                color="white">
-                Wallet
-              </Text>
-            </HStack>
 
-            <Text
-              pl={10}
-              style={{
-                ...styles.fontStyleDefault,
-                fontWeight: '400',
-                fontSize: 14,
-              }}
-              color="white">
-              Quick Payments
-            </Text>
-          </VStack>
-          <HStack space={2} pt={6}>
-            <Text
-              style={{...styles.fontStyleDefault, fontSize: 18}}
-              color="white">
-              ₱ 199.60
-            </Text>
-            <Icon name="right" color="white" size={18} />
+        {/* 2nd */}
+        <ScrollView zIndex={4} borderTopRadius={8} mb={32}>
+          {/* GREEN HEADER */}
+          <HStack
+            px={4}
+            py={2}
+            w="full"
+            borderTopRadius={32}
+            bgColor={colors.primary}
+            justifyContent="space-between">
+            <VStack pt={6}>
+              <HStack space={4}>
+                <Icon name="wallet" color="white" size={22} />
+                <Text
+                  style={{...styles.fontStyleDefault, fontSize: 14}}
+                  color="white">
+                  Wallet
+                </Text>
+              </HStack>
+
+              <Text
+                pl={10}
+                style={{
+                  ...styles.fontStyleDefault,
+                  fontWeight: '400',
+                  fontSize: 14,
+                }}
+                color="white">
+                Quick Payments
+              </Text>
+            </VStack>
+            <HStack space={2} pt={6}>
+              <Text
+                style={{...styles.fontStyleDefault, fontSize: 18}}
+                color="white">
+                ₱ 199.60
+              </Text>
+              <Icon name="right" color="white" size={18} />
+            </HStack>
           </HStack>
-        </HStack>
-        {/* WHITE */}
-        <ScrollView
-          bgColor="white"
-          zIndex={4}
-          h="full"
-          style={{
-            borderTopEndRadius: 32,
-            borderTopStartRadius: 32,
-            bottom: 24,
-          }}>
+
+          {/* WHITE */}
           <VStack
             style={{borderTopEndRadius: 32, borderTopStartRadius: 32}}
             p={6}
@@ -143,6 +137,7 @@ const Profile = ({navigation}: Props) => {
             <Button
               bgColor="red.400"
               rounded="full"
+              mb={32}
               _pressed={{bgColor: 'red.600'}}
               onPress={signOut}>
               Sign Out

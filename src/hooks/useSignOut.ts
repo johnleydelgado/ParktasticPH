@@ -1,7 +1,10 @@
 import auth from '@react-native-firebase/auth';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import {useAppDispatch} from './reduxHooks';
+import {resetCommonState} from '@/redux/common';
 
 export const useSignOut = () => {
+  const dispatch = useAppDispatch();
   // Function to sign out from Firebase
   const firebaseSignOut = async () => {
     try {
@@ -25,6 +28,7 @@ export const useSignOut = () => {
   const signOut = async () => {
     await firebaseSignOut();
     await googleSignOut();
+    dispatch(resetCommonState());
   };
 
   return {signOut};

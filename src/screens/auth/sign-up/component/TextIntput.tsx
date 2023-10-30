@@ -2,7 +2,7 @@ import {Box, Input} from 'native-base';
 import React, {FC} from 'react';
 import {Text} from 'react-native-paper';
 
-interface TextIntputProps {
+interface TextInputProps {
   placeholder: string;
   keyboardType:
     | 'default'
@@ -14,14 +14,14 @@ interface TextIntputProps {
     | 'url';
   title: string;
   onChangeText: (text: string) => void;
-  onBlur: () => void;
+  onBlur?: () => void;
   value: string;
   error: string | null | undefined;
   isPassword?: boolean;
   otherProps?: any;
 }
 
-const TextIntput: FC<TextIntputProps> = ({
+const TextInput: FC<TextInputProps> = ({
   placeholder,
   keyboardType,
   title,
@@ -61,4 +61,4 @@ const TextIntput: FC<TextIntputProps> = ({
   );
 };
 
-export default TextIntput;
+export default TextInput;

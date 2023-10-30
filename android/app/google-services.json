@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "322891877752-b8as9m4j4pggsnbkn21s2rpnqpb8lahe.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.parktasticph",
+            "certificate_hash": "b6a18ebc3c103df51210624c46c7eca6336347e0"
+          }
+        },
+        {
           "client_id": "322891877752-pusqk96lbtrg4d4r6nvbg9jrkbqa6drd.apps.googleusercontent.com",
           "client_type": 3
         }

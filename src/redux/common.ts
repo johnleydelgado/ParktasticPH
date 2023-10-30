@@ -5,6 +5,7 @@ interface UserProps {
   name: string;
   email: string;
   phoneNumber: string;
+  role: 'Driver' | 'Parktastic Partner' | 'Parktastic Buddy' | string;
 }
 
 interface CommonState {
@@ -15,7 +16,7 @@ interface CommonState {
 
 const initialState: CommonState = {
   openModals: [],
-  user: {name: '', email: '', phoneNumber: ''},
+  user: {name: '', email: '', phoneNumber: '', role: ''},
   selectedVehicle: {brand: '', licenseNum: '', make: '', modelYear: ''},
 };
 
@@ -29,10 +30,16 @@ export const common = createSlice({
     setSelectedVehicle: (state, action: PayloadAction<VehicleProps>) => {
       state.selectedVehicle = action.payload;
     },
+    resetCommonState: state => {
+      state.selectedVehicle = initialState.selectedVehicle;
+      state.user = initialState.user;
+      state.openModals = initialState.openModals;
+    },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const {setUserData, setSelectedVehicle} = common.actions;
+export const {setUserData, setSelectedVehicle, resetCommonState} =
+  common.actions;
 
 export default common.reducer;

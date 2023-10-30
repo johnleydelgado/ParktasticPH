@@ -1,11 +1,27 @@
-import {ParkingSpacesProps} from '@/common/schema/main';
+import {
+  BookingProps,
+  ParkingSpacesProps,
+  listOfBookingProps,
+} from '@/common/schema/main';
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+
+export interface ManualBookingProps {
+  booking_date: any;
+  duration: number;
+  payment_method: string;
+  plate_no: string;
+  vehicle: string;
+}
 
 interface CommonState {
   openModals: any[];
   isOpenParkingBooking: boolean;
   searchLocLatLang: {lng: string; lat: string} | null;
   parkingSpaceData: ParkingSpacesProps | null;
+  selectedBooking: BookingProps | null;
+  selectedParkingLot: listOfBookingProps | null;
+  selectedBookingDate: {duration: number; bookingDate: string} | null;
+  manualBooking: ManualBookingProps | null;
 }
 
 const initialState: CommonState = {
@@ -13,6 +29,10 @@ const initialState: CommonState = {
   isOpenParkingBooking: false,
   searchLocLatLang: null,
   parkingSpaceData: null,
+  selectedBooking: null,
+  selectedParkingLot: null,
+  selectedBookingDate: null,
+  manualBooking: null,
 };
 
 export const nonPersistState = createSlice({
@@ -57,6 +77,27 @@ export const nonPersistState = createSlice({
     setParkingSpaceData: (state, action: PayloadAction<ParkingSpacesProps>) => {
       state.parkingSpaceData = action.payload;
     },
+    setSelectedBooking: (state, action: PayloadAction<BookingProps>) => {
+      state.selectedBooking = action.payload;
+    },
+    setSelectedParkingLot: (
+      state,
+      action: PayloadAction<listOfBookingProps | null>,
+    ) => {
+      state.selectedParkingLot = action.payload;
+    },
+    setSelectedBookingDate: (
+      state,
+      action: PayloadAction<{duration: number; bookingDate: string} | null>,
+    ) => {
+      state.selectedBookingDate = action.payload;
+    },
+    setManualBooking: (
+      state,
+      action: PayloadAction<ManualBookingProps | null>,
+    ) => {
+      state.manualBooking = action.payload;
+    },
   },
 });
 
@@ -68,6 +109,10 @@ export const {
   setOpenParkingBooking,
   setSearchLocLatLang,
   setParkingSpaceData,
+  setSelectedBooking,
+  setSelectedParkingLot,
+  setSelectedBookingDate,
+  setManualBooking,
 } = nonPersistState.actions;
 
 export default nonPersistState.reducer;

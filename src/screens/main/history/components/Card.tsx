@@ -10,7 +10,6 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 // create a component
 
 const HistoryCard = ({data}: {data: BookingProps | undefined}) => {
-  console.log('data?.booking_date.toDate() ', data?.booking_date.toDate());
   return (
     <VStack shadow="4" bgColor="white" rounded="lg">
       <VStack space={2} p={4}>
@@ -35,8 +34,12 @@ const HistoryCard = ({data}: {data: BookingProps | undefined}) => {
 
         <HStack space={2} alignItems="center">
           <Icon name="map-marker-alt" size={16} color="green" />
-          <Text style={styles.fontStyleDefault} color="gray.400" fontSize={14}>
-            1921 J Fajardo St.
+          <Text
+            style={styles.fontStyleDefault}
+            color="gray.400"
+            fontSize={14}
+            w="3/4">
+            {data?.address || ''}
           </Text>
         </HStack>
       </VStack>
@@ -61,7 +64,7 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenSans-Regular',
   },
   imageStyle: {
-    width: 120,
+    width: 80,
     height: 52,
     position: 'absolute',
     bottom: 1,

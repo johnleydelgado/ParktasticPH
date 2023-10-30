@@ -1,7 +1,10 @@
+import {fetchBookingWithAvailableSlot} from '@/common/api/main';
 import {colors} from '@/common/constant/colors';
-import {ParkingSpacesProps} from '@/common/schema/main';
+import {ParkingLotDataProps, ParkingSpacesProps} from '@/common/schema/main';
+import {useAppSelector} from '@/hooks/reduxHooks';
 // import {getCollectionRef} from '@/common/helper/FirestoreHelper';
 import {GOOGLE_PLACES_AUTOCOMPLETE_KEY} from '@env';
+import {useQuery} from '@tanstack/react-query';
 
 import {
   Box,
@@ -27,10 +30,15 @@ const ParkingDetails = ({
   parkingData: ParkingSpacesProps | undefined;
 }) => {
   const {width} = Dimensions.get('window');
+  const {selectedBookingDate} = useAppSelector(state => state.nonPersistState);
 
-  const slotAvailable = Object.values(parkingData?.parking_lot || {}).filter(
-    value => value === false,
-  ).length;
+  const {data} = useQuery<ParkingLotDataProps[]>({
+    queryKey: ['bookingAvailableSlots', parkingData],
+    queryFn: () =>
+      fetchBookingWithAvailableSlot(selectedBookingDate || null, parkingData),
+  });
+
+  const slotAvailable: number = data?.length || 0;
 
   return (
     <Box px={4}>

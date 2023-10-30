@@ -1,5 +1,14 @@
-interface ParkingLotProps {
-  [key: string]: any;
+export interface ParkingLotProps {
+  id: string;
+  parkingAttendantId: string;
+}
+
+export interface ParkingLotDataProps {
+  [x: string]: string | undefined;
+  lotId: string;
+  status: string;
+  userId: string;
+  parkingLotId?: string;
 }
 
 interface FacilitiesProps {
@@ -16,7 +25,7 @@ export interface ParkingSpacesProps {
   id?: string;
   address: string;
   name: string;
-  parking_lot: ParkingLotProps;
+  parking_lot: ParkingLotDataProps[];
   rate: number;
   rules: string;
   time_from: string;
@@ -25,18 +34,23 @@ export interface ParkingSpacesProps {
   km?: number;
   m?: number;
   location?: {lat: number; lng: number};
+  createdById?: string;
   payment_options: {gcash: boolean; wallet: boolean};
 }
 
 export interface BookingProps {
+  id?: string;
   booking_date: any;
   duration: number;
   parking_space_id: string;
   payment_method: 'gcash' | 'wallet';
   plate_no: string;
-  qr_code: string;
+  qr_code: qrProps;
   rate: number;
   vehicle: string;
+  address?: string;
+  beginTime?: any;
+  createdById?: string;
 }
 
 export interface VehicleProps {
@@ -47,7 +61,43 @@ export interface VehicleProps {
 }
 
 export interface ParkingSlotsProps {
-  slot: any;
+  lotId: string;
+  status: 'Available' | 'Not Available';
+  userId: string;
+}
+
+export interface qrProps {
+  qrCode: string;
+  email: string;
+  bookingId: string;
+  lotId: string;
+  address: string;
+  parkingLotId: string;
+  parkingSpaceId: string;
+  booking_date: any;
+}
+
+export interface bookingLogsProps {
+  timeLog: string;
+  qrCode: string;
+  email: string;
+  bookingId: string;
+  lotId: string;
+  address: string;
+  parkingLotId: string;
+  parkingSpaceId: string;
+}
+
+export interface listOfBookingProps {
+  timeLog: string;
+  qrCode: string;
+  email: string;
+  bookingId: string;
+  lotId: string;
+  address: string;
+  parkingLotId: string;
+  parkingSpaceId: string;
+  status: 'Available' | 'Reserved' | 'Not Available';
 }
 
 export interface SignUpUserProps {
@@ -55,4 +105,10 @@ export interface SignUpUserProps {
   password: string;
   fullName: string;
   phoneNumber: string;
+  role: 'Driver' | 'Parktastic Partner' | 'Parktastic Buddy';
+}
+
+export interface EmailProps {
+  to: string;
+  message: {html: string; subject: string; text: string};
 }

@@ -12,6 +12,8 @@ const primary_logo = require('../assets/images/icons/primary_logo.png');
 const wallet = require('../assets/images/payment/wallet.png');
 const noResult = require('../assets/images/common/no-result.png');
 const googleIcon = require('../assets/images/common/google-icon.png');
+const emptyData = require('../assets/images/common/empty-data.png');
+const car_green = require('../assets/images/common/car-green.png');
 
 const images = {
   sign_img,
@@ -28,6 +30,8 @@ const images = {
   wallet,
   noResult,
   googleIcon,
+  emptyData,
+  car_green,
 };
 
 export {images};

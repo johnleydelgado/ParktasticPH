@@ -1,14 +1,12 @@
 //import liraries
 import {colors} from '@/common/constant/colors';
 import {Box, ScrollView, Text, VStack} from 'native-base';
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 
 import HistoryCard from './components/Card';
 import {StyleSheet} from 'react-native';
 import FadeInView from '@/common/components/FadeInView';
-import {COLLECTIONS} from '@/common/constant/firestore';
-import {BookingProps} from '@/common/schema/main';
-import firestore, {firebase} from '@react-native-firebase/firestore';
+
 import {isEmpty} from 'lodash';
 import {useAppSelector} from '@/hooks/reduxHooks';
 import {
@@ -18,29 +16,12 @@ import {
 } from 'react-native-alert-notification';
 import {TabMainNavigationProp} from '@/navigators/DashboardNavigator';
 import {useFocusEffect} from '@react-navigation/native';
+import useBookingHistory from '@/hooks/useBookingHistory';
 
 // create a component
 const History = ({navigation}: {navigation: TabMainNavigationProp}) => {
   const {selectedVehicle} = useAppSelector(state => state.common);
-  const [bookingHistory, setBookingHistory] = useState<BookingProps[]>();
-  useEffect(() => {
-    const userId = firebase.auth().currentUser?.uid;
-    const vehiclesRef = firestore()
-      .collection(COLLECTIONS.BOOKING)
-      .doc(userId)
-      .collection(userId || '');
-
-    const subscriber = vehiclesRef.onSnapshot(async querySnapshot => {
-      let data: BookingProps[] = [];
-      querySnapshot.forEach(documentSnapshot => {
-        data.push(documentSnapshot.data() as BookingProps);
-      });
-      setBookingHistory(data);
-    });
-
-    // Stop listening for updates when no longer required
-    return () => subscriber();
-  }, []);
+  const {bookingHistory} = useBookingHistory();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -57,7 +38,6 @@ const History = ({navigation}: {navigation: TabMainNavigationProp}) => {
           button: 'Go to profile',
           onHide: () => navigation.navigate('ProfileTabScreen'),
         });
-        console.log('11', selectedVehicle);
       }
     }, [navigation, selectedVehicle]), // don't forget to include dependencies here
   );
@@ -85,7 +65,9 @@ const History = ({navigation}: {navigation: TabMainNavigationProp}) => {
               space={4}
               h="88%">
               {!isEmpty(bookingHistory)
-                ? bookingHistory?.map(a => <HistoryCard data={a} />)
+                ? bookingHistory?.map((a, index) => (
+                    <HistoryCard data={a} key={index} />
+                  ))
                 : null}
             </VStack>
           </ScrollView>

@@ -3,9 +3,23 @@
 import {useAppDispatch, useAppSelector} from '@/hooks/reduxHooks';
 import {colors} from '@common/constant/colors';
 import {modalName} from '@common/constant/modal';
-import {Box, HStack, Text, VStack, Image, Spinner} from 'native-base';
+import {
+  Box,
+  HStack,
+  Text,
+  VStack,
+  Image,
+  Spinner,
+  ScrollView,
+} from 'native-base';
 import React, {useEffect} from 'react';
-import {Dimensions, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  Dimensions,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Modal from 'react-native-modal';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Carousel from 'react-native-reanimated-carousel';
@@ -28,13 +42,16 @@ const ParkingListModal = ({
 }) => {
   const {openModals} = useAppSelector(state => state.nonPersistState);
   const {isOpenParkingBooking} = useAppSelector(state => state.nonPersistState);
-  const {searchLocLatLang} = useAppSelector(state => state.nonPersistState);
+  const {searchLocLatLang, selectedBookingDate} = useAppSelector(
+    state => state.nonPersistState,
+  );
 
   const {data, isLoading, isRefetching, refetch} = useQuery<
     ParkingSpacesProps[]
   >({
     queryKey: ['parkingSpaces'],
-    queryFn: () => fetchParkingSpaces(searchLocLatLang),
+    queryFn: () =>
+      fetchParkingSpaces(searchLocLatLang, selectedBookingDate || null),
     enabled: false,
   });
 
@@ -71,6 +88,9 @@ const ParkingListModal = ({
         parallaxScrollingScale: 0.95,
         parallaxScrollingOffset: 55,
       }}
+      panGestureHandlerProps={{
+        activeOffsetX: [-10, 10],
+      }}
       renderItem={({index}) => (
         <ParkingDetails
           key={index}
@@ -94,7 +114,10 @@ const ParkingListModal = ({
             <ParkingBookingModal />
           </AlertNotificationRoot>
         ) : (
-          <VStack flex={1} bgColor={colors.bgColor} safeAreaTop={12}>
+          <VStack
+            flex={1}
+            bgColor={colors.bgColor}
+            safeAreaTop={Platform.OS === 'android' ? 2 : 12}>
             <HStack justifyContent="space-between">
               <VStack px={4}>
                 <TouchableOpacity
@@ -126,7 +149,9 @@ const ParkingListModal = ({
             {isLoading || isRefetching ? (
               <Spinner />
             ) : !isEmpty(data) ? (
-              <CarouselWithHoc />
+              <ScrollView flex={1}>
+                <CarouselWithHoc />
+              </ScrollView>
             ) : (
               <VStack
                 mt={12}

@@ -5,6 +5,7 @@ import {
   createBottomTabNavigator,
 } from '@react-navigation/bottom-tabs';
 import {
+  RouteProp,
   getFocusedRouteNameFromRoute,
   useNavigation,
   useRoute,
@@ -23,6 +24,7 @@ import {View} from 'react-native';
 import {Pressable} from 'react-native';
 import {Box} from '@react-native-material/core';
 import {
+  BookingListScreen,
   FaqScreen,
   FindScreen,
   HistoryScreen,
@@ -30,10 +32,13 @@ import {
   MyVehicleScreen,
   PrivacyScreen,
   ProfileScreen,
+  QRScreen,
   SupportScreen,
+  TimerScreen,
 } from '@screens/index';
 import {colors} from '@common/constant/colors';
 import {Text} from 'react-native-paper';
+import {qrProps} from '@/common/schema/main';
 
 // import DashboardNavigator from "./DashboardNavigator";
 
@@ -44,6 +49,8 @@ type RootStackParamList = {
   FindTabScreen: undefined;
   HistoryTabScreen: undefined;
   ProfileTabScreen: undefined;
+  BookingListScreen: undefined;
+  QRScreen: {qr: qrProps};
   // Add other screens here
 };
 
@@ -52,6 +59,8 @@ export type MainNavProp = BottomTabNavigationProp<
   RootStackParamList,
   'FindTabScreen'
 >;
+
+export type QrScreenRouteProp = RouteProp<RootStackParamList, 'QRScreen'>;
 
 type SelectedStacks = 'MY_VEHICLE_STACK' | 'MY_ADDRESS_STACK'; // Add other stack names here if needed
 
@@ -214,9 +223,31 @@ const DashboardTab = () => {
 };
 
 const FindStack = ({navigation, route}) => {
+  React.useLayoutEffect(() => {
+    const tabHiddenRoutes = [STACKS.BOOKING_LIST_STACK, STACKS.QR_STACK];
+    const routeName = (getFocusedRouteNameFromRoute(route) ?? '') as
+      | 'BookingListScreen'
+      | 'QRScreen';
+
+    if (tabHiddenRoutes.includes(routeName)) {
+      navigation.getParent()?.setOptions({tabBarStyle: {display: 'none'}});
+    } else {
+      navigation.getParent()?.setOptions({tabBarStyle: {display: 'flex'}});
+    }
+  }, [navigation, route]);
+
   return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Navigator
+      screenOptions={{headerShown: false}}
+      // initialRouteName={STACKS.TIMER_STACK}
+    >
       <Stack.Screen name={STACKS.FIND_STACK} component={FindScreen} />
+      <Stack.Screen
+        name={STACKS.BOOKING_LIST_STACK}
+        component={BookingListScreen}
+      />
+      <Stack.Screen name={STACKS.QR_STACK} component={QRScreen} />
+      {/* <Stack.Screen name={STACKS.TIMER_STACK} component={TimerScreen} /> */}
     </Stack.Navigator>
   );
 };

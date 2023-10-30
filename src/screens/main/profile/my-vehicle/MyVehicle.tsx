@@ -48,7 +48,7 @@ const MyVehicle = ({navigation}: {navigation: StackMainNavigationProp}) => {
     <VStack flex={1} bgColor="white">
       <CreateUpdateVehicle />
       {/* HEADER */}
-      <Box safeAreaTop={12} px={4} h="20%" w="full" bgColor={colors.bgColor}>
+      <Box safeAreaTop={12} px={4} w="full" bgColor={colors.bgColor} pb={6}>
         <HStack justifyContent="space-between">
           <VStack>
             <TouchableOpacity
@@ -154,7 +154,7 @@ const MyVehicle = ({navigation}: {navigation: StackMainNavigationProp}) => {
                     {a.modelYear} | {a.licenseNum}
                   </Text>
                 </VStack>
-                {selectedVehicle.licenseNum === a.licenseNum ? (
+                {selectedVehicle?.licenseNum === a.licenseNum ? (
                   <Icon name="checkcircle" color={colors.textDark} size={26} />
                 ) : null}
               </HStack>

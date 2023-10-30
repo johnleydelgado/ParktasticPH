@@ -4,6 +4,7 @@ import {AuthNavigationProp} from '@/navigators/AuthNavigator';
 import {
   Box,
   Button,
+  Checkbox,
   HStack,
   Input,
   Pressable,
@@ -29,6 +30,7 @@ const INITIAL_DATA: SignUpUserProps = {
   password: '',
   fullName: '',
   phoneNumber: '',
+  role: 'Driver',
 };
 
 let userSignUpSchema = object({
@@ -49,15 +51,17 @@ let userSignUpSchema = object({
 // create a component
 const SignUp = ({navigation}: {navigation: AuthNavigationProp}) => {
   const [show, setShow] = useState(false);
+  const [isParktasticBuddy, setIsParktasticBuddy] = useState<boolean>(false);
+
   const dispatch = useAppDispatch();
   const mutation = useMutation(signUpUser, {
     onSuccess: (data, variables) => {
-      console.log('User successfully created:', variables);
       dispatch(
         setUserData({
           name: variables.fullName || '',
           email: variables.email,
           phoneNumber: variables.phoneNumber,
+          role: isParktasticBuddy ? 'Parktastic Buddy' : 'Driver',
         }),
       );
       // queryClient.invalidateQueries('someQueryKey');
@@ -73,6 +77,7 @@ const SignUp = ({navigation}: {navigation: AuthNavigationProp}) => {
     validationSchema: userSignUpSchema,
     onSubmit: values => {
       try {
+        values.role = isParktasticBuddy ? 'Parktastic Buddy' : 'Driver';
         mutation.mutate(values);
       } catch (e: any) {
         console.error('Error during mutation:', e);
@@ -200,6 +205,15 @@ const SignUp = ({navigation}: {navigation: AuthNavigationProp}) => {
           />
 
           <Spacer />
+          <HStack alignItems="center" space={4}>
+            <Checkbox
+              colorScheme="green"
+              isChecked={isParktasticBuddy}
+              onChange={a => setIsParktasticBuddy(a)}
+              value="">
+              <Text pl={2}>Sign up as Parktastic Buddy ?</Text>
+            </Checkbox>
+          </HStack>
           <Button
             _pressed={{bgColor: 'green.500'}}
             bgColor={colors.primary}
