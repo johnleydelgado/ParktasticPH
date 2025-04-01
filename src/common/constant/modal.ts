@@ -6,6 +6,7 @@ const modalName = {
   ADD_EDIT_VEHICLE: 'add_edit_vehicle',
   ADMIN_ADD_BOOKING: 'admin_add_booking',
   ADMIN_REPORT_BOOKING: 'admin_report_booking',
+  ADMIN_END_SESSION_BOOKING: 'admin_end_session_booking',
 };
 
 export {modalName};

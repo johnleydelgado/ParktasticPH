@@ -18,7 +18,10 @@ import generateRandomString from '@/common/helper/generateRandomChar';
 import {ALERT_TYPE, Dialog} from 'react-native-alert-notification';
 import {lotStatus} from '@/common/constant/common';
 import {format, isValid, parseISO} from 'date-fns';
-import {fetchBookingWithAvailableSlot} from '@/common/api/main';
+import {
+  createFireStore,
+  fetchBookingWithAvailableSlot,
+} from '@/common/api/main';
 import {useQuery} from '@tanstack/react-query';
 
 const INITIAL_DATA: BookingProps = {
@@ -86,7 +89,7 @@ const ParkingBooking = () => {
 
         const db = firestore();
         const userDocRef = db.collection(COLLECTIONS.BOOKING);
-
+        fValues.parkBuddyId = parkingSpaceData?.createdById || '';
         fValues.qr_code = {
           ...fValues.qr_code,
           address: fValues.address || '',
@@ -105,6 +108,15 @@ const ParkingBooking = () => {
               qr_code: {
                 ...fValues.qr_code,
                 bookingId: docRef.id,
+              },
+            });
+
+            await createFireStore({
+              collection: COLLECTIONS.BOOKING_LOGS,
+              values: {
+                ...fValues.qr_code,
+                bookingId: docRef.id,
+                parkBuddyId: parkingSpaceData?.createdById || '',
               },
             });
 
@@ -277,6 +289,7 @@ const ParkingBooking = () => {
               modal
               open={open}
               date={date}
+              androidVariant="nativeAndroid"
               onConfirm={date => {
                 setOpen(false);
                 setDate(date);

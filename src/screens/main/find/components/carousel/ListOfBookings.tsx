@@ -15,7 +15,7 @@ import {
 import Carousel from 'react-native-reanimated-carousel';
 import AnimatedDotsCarousel from 'react-native-animated-dots-carousel';
 import {Dimensions, RefreshControl, StyleSheet} from 'react-native';
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useState} from 'react';
 import {BookingProps, bookingLogsProps, qrProps} from '@/common/schema/main';
 import {GOOGLE_PLACES_AUTOCOMPLETE_KEY} from '@env';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -26,12 +26,14 @@ import {setSelectedBooking} from '@/redux/nonPersistState';
 import {firestoreReadWithoutCol} from '@/common/api/main';
 import {COLLECTIONS} from '@/common/constant/firestore';
 import Timer from '@/common/components/Timer';
-
+import {useFocusEffect} from '@react-navigation/native';
+import firestore from '@react-native-firebase/firestore';
 interface ListProps {
   isStarted: boolean;
-  index: number;
+  bookingId: string;
   timeLog: string;
   duration: number;
+  allData?: any;
 }
 
 export default function ListOfBookings({
@@ -45,6 +47,7 @@ export default function ListOfBookings({
 }) {
   const {width, height} = Dimensions.get('window');
   const [index, setIndex] = useState<number>(0);
+  const [fData, setFData] = useState<any[]>([]);
   const dispatch = useAppDispatch();
   const [listOfStartedBooking, setListOfStartedBooking] = useState<ListProps[]>(
     [],
@@ -77,38 +80,75 @@ export default function ListOfBookings({
     dispatch(setSelectedBooking(finalData));
   };
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     const bookingLogs = (await firestoreReadWithoutCol({
       collection: COLLECTIONS.BOOKING_LOGS,
     })) as bookingLogsProps[];
 
     if (bookingLogs) {
       let tempList = [];
-
+      let tempFData = [...fData];
       for (let item1 of bookingLogs) {
         for (let index = 0; index < data.length; index++) {
           let item2 = data[index];
+
           if (item1.bookingId === item2.id) {
-            console.log('Matching bookingId found at index:', index);
-            tempList.push({
-              index,
-              isStarted: true,
-              timeLog: item1.timeLog,
-              duration: item2.duration,
-            });
-            // You can now use index and item2 as needed
+            if (!item1.timeOutLog) {
+              // Add item2 to tempFData if item1 does not have a timeOutLog
+              tempFData.push(item2);
+              tempList.push({
+                bookingId: item1.bookingId,
+                isStarted: true,
+                timeLog: item1.timeLog,
+                duration: item2.duration,
+                allData: item1,
+              });
+            }
           }
         }
       }
-      if (tempList) {
+      if (tempList.length > 0) {
         setListOfStartedBooking(tempList);
       }
+      setFData(tempFData);
+    }
+  }, []);
+
+  const endParkingHandler = async (dataN: ListProps | null) => {
+    // await createFireStore({collection: COLLECTIONS.BOOKING_LOGS, values: data});
+    const obj: bookingLogsProps = {
+      ...dataN?.allData,
+      timeOutLog: new Date().toISOString(),
+    };
+
+    try {
+      // Step 1: Query to find documents that match your conditions
+      const querySnapshot = await firestore()
+        .collection(COLLECTIONS.BOOKING_LOGS)
+        .where('bookingId', '==', obj.bookingId)
+        .get();
+
+      // // Step 2: Update each document individually
+      const updatePromises = querySnapshot.docs.map(doc => doc.ref.update(obj));
+
+      // // Wait for all updates to complete
+      await Promise.all(updatePromises);
+      fetchData();
+      return true;
+    } catch (error) {
+      console.log('Error in updating documents:', error);
+      return false;
     }
   };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+      // Optional: Return a function that runs on blur
+      return () => {
+        // Cleanup if needed
+      };
+    }, [fetchData]),
+  );
 
   return (
     <Center w="100%" h="full">
@@ -116,7 +156,7 @@ export default function ListOfBookings({
         loop={false}
         width={width}
         height={height * 0.7}
-        data={data}
+        data={fData}
         scrollAnimationDuration={300}
         onSnapToItem={index => console.log('current index:', index)}
         pagingEnabled
@@ -127,18 +167,22 @@ export default function ListOfBookings({
         onProgressChange={(_, absoluteProgress) => {
           handleIndex(Math.round(absoluteProgress));
         }}
-        renderItem={({index}) => {
-          const dateObject = data[index]?.booking_date.toDate();
-          const address = data[index]?.address || '';
-          const duration = data[index]?.duration || '';
+        renderItem={({item, index}) => {
+          const dateObject = fData[index]?.booking_date.toDate();
+          const address = fData[index]?.address || '';
+          const duration = fData[index]?.duration || '';
           const formattedDate = format(dateObject, 'EEE, MMMM d yyyy');
           const formattedTime = format(dateObject, 'hh:mm aa');
           const starteBooking = listOfStartedBooking.find(
-            a => a.index === index,
+            a => a.bookingId === item.id,
           )?.timeLog;
+          const bookingLogData = listOfStartedBooking.find(
+            a => a.bookingId === item.id,
+          );
           const starteBookingDuration = listOfStartedBooking.find(
-            a => a.index === index,
+            a => a.bookingId === item.id,
           )?.duration;
+
           return (
             <View>
               {starteBooking ? (
@@ -165,7 +209,7 @@ export default function ListOfBookings({
                         fontSize={14}
                         fontWeight="medium"
                         color="white">
-                        Slot {data[index]?.qr_code?.lotId}
+                        Slot {fData[index]?.qr_code?.lotId}
                       </Text>
                       <VStack>
                         <HStack justifyContent="space-between">
@@ -241,25 +285,13 @@ export default function ListOfBookings({
                         </HStack>
 
                         <Box pt={5}>
-                          {/* <SwipeButton
-                          Icon={<Icon name="right" color="white" size={22} />}
-                          onComplete={() => Alert.alert('Completed')}
-                          title="End Parking"
-                          titleStyle={{color: 'black'}}
-                          height={44}
-                          width={width * 0.8}
-                          underlayStyle={{
-                            borderRadius: height / 4,
-                            backgroundColor: isSwipe ? 'white' : 'transparent',
-                          }}
-                          onSwipeStart={() => setIsSwipe(true)}
-                          onSwipeEnd={() => setIsSwipe(false)}
-                          circleBackgroundColor="black"
-                        /> */}
                           <Button
                             bgColor="black"
                             _text={{color: 'white'}}
-                            _pressed={{bgColor: 'gray.700'}}>
+                            _pressed={{bgColor: 'gray.700'}}
+                            onPress={() =>
+                              endParkingHandler(bookingLogData || null)
+                            }>
                             End Parking
                           </Button>
                         </Box>
@@ -278,7 +310,7 @@ export default function ListOfBookings({
                   <VStack w="full" h="full" p={4} space={2}>
                     <Image
                       source={{
-                        uri: `https://maps.googleapis.com/maps/api/streetview?location=${data[index]?.address}&fov=80&heading=180&pitch=0&key=${GOOGLE_PLACES_AUTOCOMPLETE_KEY}&size=600x400`,
+                        uri: `https://maps.googleapis.com/maps/api/streetview?location=${fData[index]?.address}&fov=80&heading=180&pitch=0&key=${GOOGLE_PLACES_AUTOCOMPLETE_KEY}&size=600x400`,
                       }}
                       h="40"
                       w="full"
@@ -362,20 +394,20 @@ export default function ListOfBookings({
                           <Text
                             style={{...styles.fontStyleDefault, fontSize: 12}}
                             flexWrap="wrap">
-                            Rate : ₱ {Number(data[index]?.rate).toFixed(2)} |
+                            Rate : ₱ {Number(fData[index]?.rate).toFixed(2)} |
                           </Text>
                           <Text
                             style={{...styles.fontStyleDefault, fontSize: 12}}
                             flexWrap="wrap">
-                            Payment : {data[index]?.payment_method} |
+                            Payment : {fData[index]?.payment_method} |
                           </Text>
                           <Text
                             style={{...styles.fontStyleDefault, fontSize: 12}}
                             flexWrap="wrap">
                             Duration :{' '}
-                            {data[index]?.duration === 1
-                              ? `${data[index].duration} hr`
-                              : `${data[index]?.duration} hrs`}
+                            {fData[index]?.duration === 1
+                              ? `${fData[index].duration} hr`
+                              : `${fData[index]?.duration} hrs`}
                           </Text>
                         </HStack>
                       </VStack>
@@ -390,14 +422,15 @@ export default function ListOfBookings({
                         px={6}
                         onPress={() =>
                           setQR({
-                            email: data[index]?.qr_code.email,
-                            qrCode: data[index]?.qr_code.qrCode,
-                            bookingId: data[index]?.qr_code.bookingId,
-                            address: data[index]?.qr_code.address,
-                            lotId: data[index]?.qr_code.lotId,
-                            parkingSpaceId: data[index]?.qr_code.parkingSpaceId,
-                            parkingLotId: data[index]?.qr_code.parkingLotId,
-                            booking_date: data[index]?.qr_code.booking_date,
+                            email: fData[index]?.qr_code.email,
+                            qrCode: fData[index]?.qr_code.qrCode,
+                            bookingId: fData[index]?.qr_code.bookingId,
+                            address: fData[index]?.qr_code.address,
+                            lotId: fData[index]?.qr_code.lotId,
+                            parkingSpaceId:
+                              fData[index]?.qr_code.parkingSpaceId,
+                            parkingLotId: fData[index]?.qr_code.parkingLotId,
+                            booking_date: fData[index]?.qr_code.booking_date,
                           })
                         }
                         _text={{...styles.fontStyleDefault, fontSize: 12}}
@@ -409,7 +442,7 @@ export default function ListOfBookings({
                         rounded="full"
                         alignSelf="center"
                         px={6}
-                        onPress={() => handleSelectedBooking(data[index])}
+                        onPress={() => handleSelectedBooking(fData[index])}
                         _text={{...styles.fontStyleDefault, fontSize: 12}}
                         _pressed={{bgColor: 'green.900'}}>
                         START DRIVING
@@ -430,7 +463,7 @@ export default function ListOfBookings({
         }}
       />
       <AnimatedDotsCarousel
-        length={data.length}
+        length={fData.length}
         currentIndex={index}
         maxIndicators={4}
         interpolateOpacityAndColor={true}

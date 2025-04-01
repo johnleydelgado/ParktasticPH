@@ -5,10 +5,12 @@ import QRCodeScanner from 'react-native-qrcode-scanner';
 import {BarCodeReadEvent, RNCamera} from 'react-native-camera';
 import {HStack, Spinner, Text} from 'native-base';
 import {isEmpty} from 'lodash';
-import {createFireStore} from '@/common/api/main';
 import {COLLECTIONS} from '@/common/constant/firestore';
 import {bookingLogsProps, qrProps} from '@/common/schema/main';
 import {TabAdminMainNavigationProp} from '@/navigators/AdminNavigator';
+import useGetBookingLogs from '@/hooks/useGetBookingLogs';
+import firestore from '@react-native-firebase/firestore';
+
 // create a component
 const QRAdminScreen = ({
   navigation,
@@ -16,11 +18,25 @@ const QRAdminScreen = ({
   navigation: TabAdminMainNavigationProp;
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>();
+  const {refetch} = useGetBookingLogs(false);
 
   const startTimerHandler = async (data: bookingLogsProps) => {
     setIsLoading(true);
-    await createFireStore({collection: COLLECTIONS.BOOKING_LOGS, values: data});
+
+    // Step 1: Query to find documents that match your conditions
+    const querySnapshot = await firestore()
+      .collection(COLLECTIONS.BOOKING_LOGS)
+      .where('bookingId', '==', data.bookingId)
+      .get();
+
+    // // Step 2: Update each document individually
+    const updatePromises = querySnapshot.docs.map(doc => doc.ref.update(data));
+
+    // // Wait for all updates to complete
+    await Promise.all(updatePromises);
+
     setIsLoading(false);
+    refetch();
     navigation.goBack();
   };
 

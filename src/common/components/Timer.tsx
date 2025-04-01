@@ -1,11 +1,32 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {useState, useEffect} from 'react';
-import firestore, {firebase} from '@react-native-firebase/firestore';
+import firestore from '@react-native-firebase/firestore';
 import {differenceInMilliseconds} from 'date-fns';
 import {Box, Image, Text, VStack} from 'native-base';
 import {CountdownCircleTimer} from 'react-native-countdown-circle-timer';
 import {COLLECTIONS} from '../constant/firestore';
 import {images} from '../constant/images';
+
+const scaleThresholds = (
+  baseThresholds: any,
+  baseDuration: any,
+  targetDuration: any,
+) => {
+  const scaleFactor = targetDuration / baseDuration;
+  return baseThresholds.map((threshold: any) =>
+    Math.round(threshold * scaleFactor),
+  );
+};
+
+const calculateThresholds = (durationInSeconds: any) => {
+  // Define your proportions
+  const proportions = [0.75, 0.5, 0.25, 0];
+
+  // Calculate thresholds based on these proportions
+  return proportions.map(proportion =>
+    Math.floor(durationInSeconds * proportion),
+  );
+};
 
 const Timer = ({
   starteBooking,
@@ -15,7 +36,7 @@ const Timer = ({
   duration: number;
 }) => {
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
-  const userId = firebase.auth().currentUser?.uid;
+  // const userId = firebase.auth().currentUser?.uid;
   const [remainingTimeState, setRemainingTimeState] = useState<number | null>(
     null,
   );
@@ -39,6 +60,27 @@ const Timer = ({
     }
   };
 
+  const fullDurationInSeconds = duration * 3600;
+  const initialThresholds = calculateThresholds(fullDurationInSeconds);
+
+  // Then scale these thresholds based on the remaining time
+  const remainingDurationInSeconds = Math.floor(timeRemaining / 1000);
+  const scaledColorsTime = scaleThresholds(
+    initialThresholds,
+    fullDurationInSeconds,
+    remainingDurationInSeconds,
+  );
+
+  console.log(
+    'duration: ',
+    remainingDurationInSeconds,
+    'timeRemaining firebase: ',
+    timeRemaining,
+    'ticking time: ',
+    remainingTimeState,
+    scaledColorsTime,
+  );
+
   useEffect(() => {
     fetchStartTime();
   }, []);
@@ -49,32 +91,35 @@ const Timer = ({
     }
   }, [remainingTimeState]);
 
-  useEffect(() => {
-    // Start a new interval only if timeRemaining is greater than zero
-    if (timeRemaining !== null && timeRemaining > 0) {
-      const id = setInterval(() => {
-        // setTimeRemaining(prevTime => Math.max((prevTime ?? 0) - 1000, 0));
-      }, 1000);
+  // useEffect(() => {
+  //   // Start a new interval only if timeRemaining is greater than zero
+  //   if (timeRemaining !== null && timeRemaining > 0) {
+  //     const id = setInterval(() => {
+  //       // setTimeRemaining(prevTime => Math.max(prevTime - 1000, 0));
+  //     }, 1000);
 
-      // Clear this interval when the component unmounts or re-renders
-      return () => clearInterval(id);
+  //     // Clear this interval when the component unmounts or re-renders
+  //     return () => clearInterval(id);
+  //   }
+  // }, [timeRemaining]);
+
+  // const startTimer = async () => {
+  //   const currentTime = new Date().toISOString();
+  //   await firebase.firestore().collection('timers').doc(userId).set({
+  //     startTime: currentTime,
+  //   });
+
+  //   setTimeRemaining(3600000); // 1 hour in milliseconds
+  // };
+
+  const displayTime = (time: number | null) => {
+    if (time) {
+      const fTime = time * 1000;
+      const hours = Math.floor(fTime / 3600000);
+      const minutes = Math.floor((fTime % 3600000) / 60000);
+      const seconds = Math.floor((fTime % 60000) / 1000);
+      return `0${hours}:0${minutes}:${seconds}`;
     }
-  }, [timeRemaining]);
-
-  const startTimer = async () => {
-    const currentTime = new Date().toISOString();
-    await firebase.firestore().collection('timers').doc(userId).set({
-      startTime: currentTime,
-    });
-
-    setTimeRemaining(3600000); // 1 hour in milliseconds
-  };
-
-  const displayTime = (time: number) => {
-    const hours = Math.floor(time / 3600000);
-    const minutes = Math.floor((time % 3600000) / 60000);
-    const seconds = Math.floor((time % 60000) / 1000);
-    return `0${hours}:0${minutes}:${seconds}`;
   };
 
   return (
@@ -91,9 +136,9 @@ const Timer = ({
         </CountdownCircleTimer> */}
         <CountdownCircleTimer
           isPlaying
-          duration={Math.floor(timeRemaining / 1000)}
-          colors={['#4CAF50', '#F7B801', '#A30000', '#A30000']}
-          colorsTime={[7, 5, 2, 0]}>
+          duration={remainingDurationInSeconds}
+          colors={['#004777', '#F7B801', '#A30000', '#A30000']}
+          colorsTime={scaledColorsTime}>
           {({remainingTime}) => {
             setTimeout(() => {
               setRemainingTimeState(remainingTime);
@@ -112,7 +157,7 @@ const Timer = ({
           }}
         </CountdownCircleTimer>
         <Text fontFamily="OpenSans-Regular" fontSize={38} fontWeight="bold">
-          {displayTime(remainingTimeState * 1000)}
+          {displayTime(remainingTimeState)}
         </Text>
         <Text
           fontFamily="OpenSans-Regular"

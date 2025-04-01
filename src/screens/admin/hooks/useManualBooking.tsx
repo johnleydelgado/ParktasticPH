@@ -8,6 +8,7 @@ import {COLLECTIONS} from '@/common/constant/firestore';
 import {ALERT_TYPE, Dialog} from 'react-native-alert-notification';
 import {closeModal} from '@/redux/nonPersistState';
 import {modalName} from '@/common/constant/modal';
+import {createFireStore} from '@/common/api/main';
 
 export default function useManualBooking() {
   const {parkingSpaceData, loading} = useGetBookingLogs(true);
@@ -45,6 +46,7 @@ export default function useManualBooking() {
           booking_date: firestoreTimestamp,
         },
         duration: manualBooking?.duration || 0,
+        parkBuddyId: parkingSpaceData?.createdById || '',
       };
 
       const userDocRef = firestore().collection(COLLECTIONS.BOOKING);
@@ -56,6 +58,15 @@ export default function useManualBooking() {
             qr_code: {
               ...fValues.qr_code,
               bookingId: docRef.id,
+            },
+          });
+
+          await createFireStore({
+            collection: COLLECTIONS.BOOKING_LOGS,
+            values: {
+              ...fValues.qr_code,
+              bookingId: docRef.id,
+              parkBuddyId: parkingSpaceData?.createdById || '',
             },
           });
 

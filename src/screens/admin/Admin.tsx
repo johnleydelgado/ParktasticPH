@@ -24,11 +24,15 @@ import AdminDialog, {ModalAdminProps} from '@/common/dialog/AdminDialog';
 import modalProps from './constants/modalProps';
 import AdminAddBookingDiaglog from '@/common/dialog/AdminAddBookingDiaglog';
 import AdminReportBookingDialog from '@/common/dialog/AdminReportBookingDialog';
+import {openModal} from '@/redux/nonPersistState';
+import {modalName} from '@/common/constant/modal';
+import AdminEndSessionDiaglog from '@/common/dialog/AdminEndSessionDiaglog';
 
 const Admin = ({navigation}: {navigation: TabAdminMainNavigationProp}) => {
   const {user} = useAppSelector(state => state.common);
   const dispatch = useAppDispatch();
-  const {bookingListLogs, refetch, loading} = useGetBookingLogs(false);
+  const {bookingListLogs, refetch, loading, isRefetching} =
+    useGetBookingLogs(false);
   const isFocused = useIsFocused();
   const [modalPropsData, setModalPropsData] = React.useState<ModalAdminProps>();
   const [selectedTypeOfParking, setSelectedTypeOfParking] = React.useState();
@@ -56,6 +60,14 @@ const Admin = ({navigation}: {navigation: TabAdminMainNavigationProp}) => {
         ['Not Available']: 2,
       };
       const index = parkingTypeToIndexMap[selectedTypeOfParking];
+
+      if (index === 2) {
+        dispatch(openModal(modalName.ADMIN_END_SESSION_BOOKING));
+        // @ts-ignore
+        setSelectedTypeOfParking('');
+        return;
+      }
+
       if (index !== undefined) {
         const foundItem = getModalProps[index];
         setModalPropsData(foundItem);
@@ -84,6 +96,7 @@ const Admin = ({navigation}: {navigation: TabAdminMainNavigationProp}) => {
 
       <AdminAddBookingDiaglog />
       <AdminReportBookingDialog />
+      <AdminEndSessionDiaglog />
       <AlertNotificationRoot>
         <VStack flex={1} bgColor="white" safeAreaTop={8} py={6} px={5}>
           <HStack justifyContent="flex-end" pb={6}>
@@ -235,7 +248,7 @@ const Admin = ({navigation}: {navigation: TabAdminMainNavigationProp}) => {
                   <Text underline>See more</Text>
                 </HStack>
 
-                {loading ? (
+                {loading || isRefetching ? (
                   <Spinner />
                 ) : (
                   <Stack
@@ -247,7 +260,7 @@ const Admin = ({navigation}: {navigation: TabAdminMainNavigationProp}) => {
                     space={6}
                     direction="row"
                     flexWrap="wrap">
-                    {bookingListLogs.map((a, index) => (
+                    {bookingListLogs?.map((a, index) => (
                       <Circle
                         status={a.status}
                         text={a.lotId}

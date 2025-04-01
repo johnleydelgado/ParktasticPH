@@ -30,6 +30,7 @@ const AdminAddBookingDiaglog = () => {
   const {openModals, manualBooking} = useAppSelector(
     state => state.nonPersistState,
   );
+
   const [hrs, setHrs] = React.useState<number>(1);
   const [date, setDate] = React.useState(new Date());
 
@@ -196,6 +197,7 @@ const AdminAddBookingDiaglog = () => {
                   </Text>
                   <DatePicker
                     date={date}
+                    androidVariant="nativeAndroid"
                     onDateChange={date => {
                       setDate(date);
                     }}

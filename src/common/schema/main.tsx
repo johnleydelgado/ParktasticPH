@@ -51,6 +51,7 @@ export interface BookingProps {
   address?: string;
   beginTime?: any;
   createdById?: string;
+  parkBuddyId?: string;
 }
 
 export interface VehicleProps {
@@ -79,6 +80,7 @@ export interface qrProps {
 
 export interface bookingLogsProps {
   timeLog: string;
+  timeOutLog?: string;
   qrCode: string;
   email: string;
   bookingId: string;
@@ -86,6 +88,7 @@ export interface bookingLogsProps {
   address: string;
   parkingLotId: string;
   parkingSpaceId: string;
+  parkBuddyId?: string;
 }
 
 export interface listOfBookingProps {

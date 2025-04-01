@@ -19,13 +19,13 @@ const modalProps = (dispatch: any) => [
     firstButtonColor: '',
     firstPress: () => console.log(''),
   },
-  {
-    title: 'This parking space is already occupied.',
-    subTitle: 'Please select actions',
-    firstButton: 'End Session',
-    firstButtonColor: '',
-    firstPress: () => dispatch(openModal(modalName.ADMIN_ADD_BOOKING)),
-  },
+  // {
+  //   title: 'This parking space is already occupied.',
+  //   subTitle: 'Please select actions',
+  //   firstButton: 'End Session',
+  //   firstButtonColor: '',
+  //   firstPress: () => dispatch(openModal(modalName.ADMIN_ADD_BOOKING)),
+  // },
 ];
 
 export default modalProps;

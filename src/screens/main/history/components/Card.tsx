@@ -2,14 +2,19 @@
 import {colors} from '@/common/constant/colors';
 import {images} from '@/common/constant/images';
 import {BookingProps} from '@/common/schema/main';
-import {format} from 'date-fns';
+import {format, parseISO} from 'date-fns';
 import {Center, HStack, Text, VStack} from 'native-base';
 import React from 'react';
 import {Image, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 // create a component
 
-const HistoryCard = ({data}: {data: BookingProps | undefined}) => {
+type HistoryCardProps = BookingProps & {
+  timeOut: string;
+  timeIn: string;
+};
+
+const HistoryCard = ({data}: {data: HistoryCardProps | undefined}) => {
   return (
     <VStack shadow="4" bgColor="white" rounded="lg">
       <VStack space={2} p={4}>
@@ -19,10 +24,15 @@ const HistoryCard = ({data}: {data: BookingProps | undefined}) => {
           </Text>
           <Text style={styles.fontStyleDefault} color="dark.100" fontSize={22}>
             {/* 05 Jun, 10:00 am */}
-            {format(
-              data?.booking_date.toDate() || new Date(),
+            {/* {format(
+              parseISO(data?.timeIn || new Date().toDateString()),
               'dd MMM, hh:mm a',
             )}
+            {' - '}
+            {format(
+              parseISO(data?.timeOut || new Date().toDateString()),
+              'hh:mm a',
+            )} */}
           </Text>
         </VStack>
         <Image

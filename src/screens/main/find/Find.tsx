@@ -49,6 +49,9 @@ import ListOfBookings from './components/carousel/ListOfBookings';
 import {STACKS} from '@/common/constant/screens';
 import {isEmpty} from 'lodash';
 import SelectBookingDate from './components/modal/SelectBookingDate';
+import {BookingProps} from '@/common/schema/main';
+import firestore from '@react-native-firebase/firestore';
+import {COLLECTIONS} from '@/common/constant/firestore';
 // create a component
 const Find = ({navigation}: {navigation: TabMainNavigationProp}) => {
   const dispatch = useAppDispatch();
@@ -57,15 +60,39 @@ const Find = ({navigation}: {navigation: TabMainNavigationProp}) => {
   const {selectedVehicle} = useAppSelector(state => state.common);
   const {selectedBooking} = useAppSelector(state => state.nonPersistState);
 
-  const {bookingHistory} = useBookingHistory();
+  const {data: bookingHistory} = useBookingHistory();
   const [destination, setDestination] = useState({latitude: 0, longitude: 0});
+  const [filteredBookings, setFilteredBookings] = useState<BookingProps[]>([]);
 
-  const filteredBookings = bookingHistory.filter(a => {
-    if (!isEmpty(a.booking_date)) {
-      const bookingDate = a.booking_date?.toDate();
-      return isToday(bookingDate) || isFuture(bookingDate);
-    } // Convert Firestore Timestamp to JavaScript Date
-  });
+  useEffect(() => {
+    const getFilteredBookings = async () => {
+      if (bookingHistory) {
+        const bookingChecks = await Promise.all(
+          bookingHistory.map(async booking => {
+            const querySnapshot = await firestore()
+              .collection(COLLECTIONS.BOOKING_LOGS)
+              .where('bookingId', '==', booking.qr_code.bookingId)
+              .get();
+
+            const bookingLogs = querySnapshot.docs.map(doc => doc.data());
+            const bookingDate = booking.booking_date?.toDate();
+
+            return (
+              !bookingLogs[0]?.timeOutLog &&
+              (isFuture(bookingDate) || isToday(bookingDate))
+            );
+          }),
+        );
+        const filtered = bookingHistory.filter(
+          (_, index) => bookingChecks[index],
+        );
+        console.log('Filtered bookings:', filtered);
+        setFilteredBookings(filtered);
+      }
+    };
+
+    getFilteredBookings();
+  }, [bookingHistory]);
 
   const googlePlacesRef = useRef<any>(null);
 

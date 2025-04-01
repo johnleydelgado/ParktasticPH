@@ -79,6 +79,7 @@ const SelectBookingDate = () => {
               </Text>
               <DatePicker
                 date={date}
+                androidVariant="nativeAndroid"
                 onDateChange={date => {
                   setDate(date);
                 }}

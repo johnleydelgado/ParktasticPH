@@ -21,7 +21,9 @@ import {STACKS} from '@/common/constant/screens';
 import {isEmpty} from 'lodash';
 import {images} from '@/common/constant/images';
 import {isFuture, isToday} from 'date-fns';
-import {qrProps} from '@/common/schema/main';
+import {BookingProps, qrProps} from '@/common/schema/main';
+import firestore from '@react-native-firebase/firestore';
+import {COLLECTIONS} from '@/common/constant/firestore';
 
 // create a component
 const BookingListScreen = ({
@@ -29,16 +31,39 @@ const BookingListScreen = ({
 }: {
   navigation: TabMainNavigationProp;
 }) => {
-  const {bookingHistory} = useBookingHistory();
+  const {data: bookingHistory} = useBookingHistory();
+
   const [selectedQr, setSelectedQr] = useState<qrProps>();
+  const [filteredBookings, setFilteredBookings] = useState<BookingProps[]>([]);
 
-  const filteredBookings = bookingHistory.filter(a => {
-    const bookingDate = a.booking_date?.toDate();
+  useEffect(() => {
+    if (bookingHistory) {
+      const getFilteredBookings = async () => {
+        const bookingChecks = await Promise.all(
+          bookingHistory?.map(async booking => {
+            const querySnapshot = await firestore()
+              .collection(COLLECTIONS.BOOKING_LOGS)
+              .where('bookingId', '==', booking.qr_code.bookingId)
+              .get();
 
-    if (isToday(bookingDate) || isFuture(bookingDate)) {
-      return {...a};
+            const bookingLogs = querySnapshot.docs.map(doc => doc.data());
+            const bookingDate = booking.booking_date?.toDate();
+
+            return (
+              !bookingLogs[0]?.timeOutLog &&
+              (isFuture(bookingDate) || isToday(bookingDate))
+            );
+          }),
+        );
+
+        const filtered = bookingHistory?.filter(
+          (_, index) => bookingChecks[index],
+        );
+        setFilteredBookings(filtered);
+      };
+      getFilteredBookings();
     }
-  });
+  }, [bookingHistory]);
 
   useEffect(() => {
     setSelectedQr({

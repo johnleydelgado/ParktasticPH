@@ -187,6 +187,28 @@ export const createFireStore = async <
   }
 };
 
+export const updateFirestoreDocument = async <
+  T extends FirebaseFirestoreTypes.DocumentData,
+>({
+  collection,
+  docId,
+  values,
+}: {
+  collection: string;
+  docId: string;
+  values: Partial<T>; // Partial makes all properties in T optional
+}) => {
+  try {
+    await firestore().collection(collection).doc(docId).update(values);
+
+    console.log('Successfully updated');
+    return true;
+  } catch (error) {
+    console.log('Error in updating:', error);
+    return false;
+  }
+};
+
 export const firestoreRead = async <T>({
   collection,
   userId,
